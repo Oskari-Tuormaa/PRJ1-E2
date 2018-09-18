@@ -2,5 +2,7 @@
 
 int main(void)
 {
-	printf("Hello World!");
+	char x;
+	scanf_s("%c", &x);
+	printf("%c", x);
 }
