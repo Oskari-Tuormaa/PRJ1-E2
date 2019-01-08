@@ -10,8 +10,8 @@
 #define SENSOR_H_
 #include <avr/interrupt.h>
 
-void innitInterrupt0();
-void innitTimer3();
+void initInterrupt0();
+void initTimer3();
 void disableInterrupt();
 void disableTimer3();
 	
