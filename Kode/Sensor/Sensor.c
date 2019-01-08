@@ -7,7 +7,7 @@
 #include "Sensor.h"
 
 
-void innitInterrupt0()
+void initInterrupt0()
 {
 	EICRA=0b00000011;
 	EICRB=0b00000000;
@@ -16,7 +16,7 @@ void innitInterrupt0()
 }
 
 
-void innitTimer3()
+void initTimer3()
 {
 	TCCR3A=0b00000000;
 	TCCR3B=0b00001101;
