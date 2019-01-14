@@ -15,10 +15,12 @@ class Sensor
 {
 public:
 	Sensor();
-	void initInterrupt();
-	void initTimer();
-	void disableInterrupt();
-	void disableTimer();
+	void initInterrupt0();
+	void initTimer3();
+	void disableInterrupt0();
+	void disableTimer3();
+	void enableInterrupt0();
+	void enableTimer3();
 };
 
 #endif //__SENSOR_H__
