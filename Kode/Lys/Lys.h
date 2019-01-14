@@ -7,6 +7,7 @@ class Lys
 {
 	Lys();
 	void initPWM(void);
+	void lysStyrke(int);
 };
 
 #endif /* LYS_H_ */

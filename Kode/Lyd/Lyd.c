@@ -71,7 +71,7 @@ void Lyd::playSound(int lydNr)
 	int command2[SIZE_COMMAND] = {0x7E, 0x03, 0x00, 0x00, 0x02, 0xFF, 0xFB, 0xEF};  //start anden lyd
 	int command3[SIZE_COMMAND] = {0x7E, 0x03, 0x00, 0x00, 0x03, 0xFF, 0xFB, 0xEF};  //start tredje lyd
 	
-	switch (sensorCounter)
+	switch (lydNr)
 	{
 		case 0:
 		for (int i = 0; i < SIZE_COMMAND; i++)
