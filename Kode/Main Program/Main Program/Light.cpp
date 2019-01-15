@@ -24,7 +24,7 @@ void Light::initPWM()
 	OCR5A = 205;  //default svagt baglys (20% duty-cycle)
 }
 
-void Light::lysStyrke(char styrke)
+void Light::rearLight(char styrke)
 {
 	switch(styrke)
 	{
@@ -40,7 +40,7 @@ void Light::lysStyrke(char styrke)
 	}
 }
 
-void Light::forLys(char strength)
+void Light::headLight(char strength)
 {
 	switch(strength)
 	{

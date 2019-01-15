@@ -16,8 +16,8 @@ class Light
 public:
 	Light();
 	void initPWM(void);
-	void lysStyrke(char);
-	void forLys(char);
+	void rearLight(char);
+	void headLight(char);
 }; //Light
 
 #endif //__LIGHT_H__
