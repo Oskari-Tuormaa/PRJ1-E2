@@ -12,6 +12,8 @@ Motor::Motor()
 {
 	desPWM_ = 0x00;
 	currPWM_ = 0x01;
+	braking_ = false;
+	postBrake_ = false;
 	
 	setTimerIndex(1, 'B');
 	setSwitchPort('B', 7);
@@ -20,6 +22,11 @@ Motor::Motor()
 	
 	stopTimer();
 	setPWM(0);
+	
+	light_.initPWM();
+	TCCR1A = 0b00000000;
+	TCCR1B = 0b00000000;
+	TCNT1 = 0;
 }
 
 Motor::Motor(char timerIndex, char OCRIndex, 
@@ -27,6 +34,8 @@ Motor::Motor(char timerIndex, char OCRIndex,
 {
 	desPWM_ = 0x00;
 	currPWM_ = 0x01;
+	braking_ = false;
+	postBrake_ = false;
 	
 	setTimerIndex(timerIndex, OCRIndex);
 	setSwitchPort(switchPort, switchPortPin);
@@ -35,6 +44,8 @@ Motor::Motor(char timerIndex, char OCRIndex,
 	
 	stopTimer();
 	setPWM(0);
+	
+	light_.initPWM();
 }
 
 /******************************
@@ -43,7 +54,7 @@ Does acceleration calculations
 
 ******************************/
 void Motor::tick()
-{
+{	
 	if (currPWM_ > -40 && currPWM_ < 40)
 	{
 		stopTimer();
@@ -62,8 +73,58 @@ void Motor::tick()
 			setPWM(-currPWM_);
 		}
 	}
+		
+	if (braking_)
+	{
+		if ((currPWM_ < desPWM_ + 10 && currPWM_ > desPWM_ - 10) || (currPWM_ > -40 && currPWM_ < 40))
+		{
+			braking_ = false;
+			postBrake_ = true;
+			TCCR1B = 0b00000100;
+			TCNT1 = 0;
+		}
+	}
 	
+	if (postBrake_)
+	{
+		if (TCNT1 > 31250)
+		{
+			postBrake_ = false;
+			TCCR1B = 0;
+		}
+	}
+	
+	if (currPWM_ > -40 && currPWM_ < 40)
+	{
+		if (!(braking_ || postBrake_))
+			light_.lysStyrke(0);
+			
+		light_.forLys(0);
+	} else
+	{
+		if (braking_ || postBrake_ || currPWM_ < 0)
+			light_.lysStyrke(2);
+		else
+			light_.lysStyrke(1);
+		
+		light_.forLys(1);
+	}
+
 	lerpPWM();
+}
+
+void Motor::lerpPWM()
+{
+	int isDesPos = (int)desPWM_ & (1<<15);
+	int isCurrPos = (int)currPWM_ & (1<<15);
+	if (isDesPos == isCurrPos || (currPWM_ < 30 && currPWM_ > -30) || desPWM_ != 0)
+	{
+		currPWM_ += (desPWM_ - currPWM_) / acc_;
+	}
+	else
+	{
+		currPWM_ += -currPWM_ / (acc_ * 0.25);
+	}
 }
 
 /******************************
@@ -75,8 +136,14 @@ void Motor::tick()
 ******************************/
 void Motor::newSpeed(int newSpeed)
 {
+	int PWM = 0xFF * newSpeed / 100;
+	int PWMSign = PWM > 0 ? 1 : -1;
+	int currPWMSign = currPWM_ > 0 ? 1 : -1;
+	
 	if (newSpeed >= -100 && newSpeed <= 100)
-		desPWM_ = 0xFF * newSpeed / 100;
+		if ((PWM > 0 ? PWM : -PWM) < (currPWM_ > 0 ? currPWM_ : -currPWM_) || PWMSign != currPWMSign)
+			braking_ = true;
+		desPWM_ = PWM;
 }
 
 void Motor::setSwitch(char state)
@@ -158,33 +225,9 @@ void Motor::startTimer()
 	}
 }
 
-void Motor::lerpPWM()
-{
-	int isDesPos = (int)desPWM_ & (1<<15);
-	int isCurrPos = (int)currPWM_ & (1<<15);
-	if (isDesPos == isCurrPos || (currPWM_ < 30 && currPWM_ > -30) || desPWM_ != 0)
-	{
-		currPWM_ += (desPWM_ - currPWM_) / acc_;
-	}
-	else
-	{
-		currPWM_ += -currPWM_ / (acc_ * 0.25);
-	}
-}
-
 void Motor::setAcc(float newAcc)
 {
 	acc_ = newAcc;
-}
-
-float Motor::getAcc()
-{
-	return acc_;
-}
-
-float Motor::getPWM()
-{
-	return desPWM_;
 }
 
 void Motor::setPWM(int newPWM)
@@ -347,9 +390,4 @@ void Motor::setSwitchPort(char switchPort, char switchPortPin)
 		case 'L':DDRL |= (1<<switchPortPin_);
 				 break;
 	}
-}
-
-char Motor::getSwitchPort()
-{
-	return switchPort_;
 }

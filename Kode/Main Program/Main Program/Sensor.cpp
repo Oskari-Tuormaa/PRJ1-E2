@@ -27,7 +27,7 @@ void Sensor::initTimer3()
 	TCCR3B=0b00001101;
 	TIMSK3=0b00000011;
 	TCNT3 = 0;
-	OCR3A=8000;
+	OCR3A=6000;
 }
 
 void Sensor::disableInterrupt0()

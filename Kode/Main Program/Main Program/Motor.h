@@ -9,6 +9,8 @@
 #ifndef MOTOR_H_
 #define MOTOR_H_
 
+#include "Light.h"
+
 class Motor
 {
 public:
@@ -16,19 +18,16 @@ public:
 	Motor(char timerIndex, char OCRIndex,
 		char switchPort, char switchPortPin, float acc);
 	void tick();
+	void lerpPWM();
 	void newSpeed(int);
 	void setSwitch(char);
 	void stopTimer();
 	void startTimer();
-	void lerpPWM();
 	
-	float getAcc();
 	void setAcc(float);
-	float getPWM();
 	void setPWM(int);
 	void setTimerIndex(char, char);
 	void setSwitchPort(char, char);
-	char getSwitchPort();
 private:
 	float acc_;
 	int desPWM_;
@@ -37,6 +36,9 @@ private:
 	char OCRIndex_;
 	char switchPort_;
 	char switchPortPin_;
+	bool braking_;
+	bool postBrake_;
+	Light light_;
 };
 
 

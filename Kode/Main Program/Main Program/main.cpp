@@ -11,10 +11,13 @@
 #include <util\delay.h>
 #include "Motor.h"
 #include "Sensor.h"
+#include "Sound.h"
 
 
 Motor motor(4, 'C', 'H', 6, 700.0);
+Sound sound;
 Sensor sensor;
+Light light;
 unsigned int checkpoint = 0;
 
 
@@ -22,60 +25,50 @@ ISR (INT0_vect)
 {
 	sensor.disableInterrupt0();
 	sensor.enableTimer3();
+	
 	checkpoint++;
-	PORTB &= 0b00000000;
 	switch(checkpoint)
-	{		
-		case 1: motor.newSpeed(70);
-		PORTB |= 1;
+	{
+		case 11:
+		case 7:
+		case 9: 
+		case 10: break;
+		default:sound.playSound(1);
+	}
+	
+	PORTB = checkpoint;
+	switch(checkpoint + 1)
+	{
+		case 2: 
+		case 3: motor.setAcc(700.0);
+				motor.newSpeed(100);
 		break;
 		
-		case 2: motor.newSpeed(70);
-		PORTB |= 2;
+		case 4: motor.setAcc(5000.0);
+				motor.newSpeed(20); // På bakken
 		break;
 		
-		case 3: motor.newSpeed(100);
-		PORTB |= 3;
+		case 5:
+		case 6: motor.setAcc(10000.0);
+				motor.newSpeed(100);
 		break;
 		
-		case 4: motor.newSpeed(20);// På bakken
-		PORTB |= 4;
+		case 7: // Bak tilbage
+		case 8: motor.setAcc(700.0);
+				motor.newSpeed(-100);
 		break;
 		
-		case 5: motor.newSpeed(100);
-		PORTB |= 5;
-		break;
-		
-		case 6: motor.newSpeed(100);
-		PORTB |= 6;
-		break;
-		
-		case 7: motor.newSpeed(-100);
-		PORTB |= 7;
-		break;
-		
-		case 8: motor.newSpeed(-100);
-		PORTB |= 7;
-		break;
-		
-		case 9: motor.newSpeed(100);
-		PORTB |= 8;
-		break;
-		
-		case 10: motor.newSpeed(100);
-		PORTB |= 8;
-		break;
-		
+		case 9: // Kør fremad
+		case 10:
 		case 11: motor.newSpeed(100);
-		PORTB |= 9;
 		break;
 		
-		case 12: _delay_ms(500);
-				motor.newSpeed(0);
-				break;
+		case 12: motor.setAcc(5000.0);
+				 motor.newSpeed(0);
+				 sound.playSound(2);
+				 break;
 		
 		default:motor.newSpeed(0);
-		PORTB |= 0;
 		break;
 	}
 }
@@ -94,6 +87,18 @@ int main(void)
 	sensor.initInterrupt0();
 	sensor.initTimer3();
 	sensor.disableTimer3();
+	
+	sound.InitUART0(9600, 8, 'N', 0);
+	sound.InitSOMO();
+	
+	DDRA = 0x00;
+	while ((~PINA & 0b00000001) == 0)
+	{}
+	
+	sound.playSound(0);
+	
+	_delay_ms(3000);
+	motor.newSpeed(100);
 	
 	DDRB = 0xFF;
 	
