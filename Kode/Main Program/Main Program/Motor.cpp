@@ -58,10 +58,19 @@ void Motor::tick()
 	if (currPWM_ > -40 && currPWM_ < 40)
 	{
 		stopTimer();
+		
+		if (!(braking_ || postBrake_))
+		{
+			light_.headLight(0);
+			light_.rearLight(0);
+		}
 	}
 	else
 	{
 		startTimer();
+		
+		light_.headLight(1);
+		
 		if (currPWM_ > 0)
 		{
 			setSwitch(0);
@@ -72,6 +81,11 @@ void Motor::tick()
 			setSwitch(1);
 			setPWM(-currPWM_);
 		}
+	
+		if (braking_ || postBrake_ || currPWM_ < 0)
+			light_.rearLight(2);
+		else
+		light_.rearLight(1);
 	}
 		
 	if (braking_)
@@ -85,29 +99,10 @@ void Motor::tick()
 		}
 	}
 	
-	if (postBrake_)
+	if (postBrake_ && TCNT1 > 31250)
 	{
-		if (TCNT1 > 31250)
-		{
-			postBrake_ = false;
-			TCCR1B = 0;
-		}
-	}
-	
-	if (currPWM_ > -40 && currPWM_ < 40)
-	{
-		if (!(braking_ || postBrake_))
-			light_.lysStyrke(0);
-			
-		light_.forLys(0);
-	} else
-	{
-		if (braking_ || postBrake_ || currPWM_ < 0)
-			light_.lysStyrke(2);
-		else
-			light_.lysStyrke(1);
-		
-		light_.forLys(1);
+		postBrake_ = false;
+		TCCR1B = 0;
 	}
 
 	lerpPWM();
@@ -366,7 +361,7 @@ void Motor::setSwitchPort(char switchPort, char switchPortPin)
 	
 	switch(switchPort)
 	{
-		default: switchPort = 'A';
+		default: switchPort_ = 'A';
 		case 'A':DDRA |= (1<<switchPortPin_);
 				 break;
 		case 'B':DDRB |= (1<<switchPortPin_);

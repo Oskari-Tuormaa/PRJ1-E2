@@ -64,14 +64,11 @@ void Sound::SendInteger(int tal)
 
 void Sound::InitSOMO()
 {
-	int command1[SIZE_COMMAND] = {0x7E, 0x04, 0x00, 0x00, 0x00, 0xFF, 0xFC, 0xEF}; //skru volumen op på 28
+	int command1[SIZE_COMMAND] = {0x7E, 0x06, 0x00, 0x00, 0x1A, 0xFF, 0xDC, 0xEF}; //skru volumen op på 28
 	
-	for (int i = 0; i < 8; i++)
+	for (int j = 0; j < SIZE_COMMAND; j++)
 	{
-		for (int j = 0; j < SIZE_COMMAND; j++)
-		{
-			SendInteger(command1[j]);
-		}
+		SendInteger(command1[j]);
 	}
 }
 
