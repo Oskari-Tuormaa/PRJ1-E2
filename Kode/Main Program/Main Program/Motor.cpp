@@ -59,10 +59,11 @@ void Motor::tick()
 	{
 		stopTimer();
 		
-		light_.headLight(0);
-		
 		if (!(braking_ || postBrake_))
+		{
+			light_.headLight(0);
 			light_.rearLight(0);
+		}
 	}
 	else
 	{
@@ -84,7 +85,7 @@ void Motor::tick()
 		if (braking_ || postBrake_ || currPWM_ < 0)
 			light_.rearLight(2);
 		else
-			light_.rearLight(1);
+		light_.rearLight(1);
 	}
 		
 	if (braking_)
@@ -98,13 +99,10 @@ void Motor::tick()
 		}
 	}
 	
-	if (postBrake_)
+	if (postBrake_ && TCNT1 > 31250)
 	{
-		if (TCNT1 > 31250)
-		{
-			postBrake_ = false;
-			TCCR1B = 0;
-		}
+		postBrake_ = false;
+		TCCR1B = 0;
 	}
 
 	lerpPWM();

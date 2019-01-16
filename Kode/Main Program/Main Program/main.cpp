@@ -91,9 +91,9 @@ int main(void)
 	sound.InitUART0(9600, 8, 'N', 0);
 	sound.InitSOMO();
 	
-	DDRB |= 0b11111110;
-	PORTB = 0b00000000;
-	while ((~PINB & 0b00000001) == 1)
+	DDRL &= 0b11111110;
+	PORTL = 0b00000001;
+	while ((PINL & 0b00000001) == 1)
 	{}
 	
 	sound.playSound(0);
