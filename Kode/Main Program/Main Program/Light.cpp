@@ -13,8 +13,8 @@ Light::Light()
 
 void Light::initPWM()
 {
-	//Initierer timer 1 til PWM phase correct 10-bit (TOP = 1023)
-	DDRL |= 1<<3;  //Port E er udgang (OCR3A ligger på PB5)
+	//Initierer timer 5 til PWM phase correct 10-bit (TOP = 1023)
+	DDRL |= 1<<3;  //Port L er udgang (OCR3A ligger på PL3)
 	PORTL &= ~(1<<3);
 	DDRF |= 0b00000011;
 	PORTF &= 0b11111100;
